@@ -6,6 +6,8 @@ Microsoft [**SEAL**](https://github.com/microsoft/SEAL) is an easy-to-use open-s
 
 This is a python binding for the Microsoft SEAL library.
 
+It's modified by Dan Roche so that you can save/load from Python `bytes`
+objects.
 
 
 ## Contents
@@ -82,9 +84,10 @@ This is a python binding for the Microsoft SEAL library.
 
 ## Note
 
-* #### Serialize
+* #### Serialize to/from files
 
-  In most situations, you can use the SEAL's native serialize API to save the data, here is an example:
+  You can use the `save` and `load` methods to serialize to/from files.
+  Example:
 
   ```python
   cipher.save('cipher')
@@ -95,36 +98,34 @@ This is a python binding for the Microsoft SEAL library.
 
   Support type: `Encryptionparams, Ciphertext, Plaintext, SecretKey, Publickey, Relinkeys, Galoiskeys`
 
-  If you want to use the pickle to serialize your data, you need to do these things below:
+  There was a way to use `pickle` before, but that method was extremely
+  inefficient.
 
-  ```shell
-  # 1. Modify the serializable object's header file in SEAL and switch the wrapper.
-  python helper.py
+  Instead, if you want to avoid files, use the `to_bytes` and
+  `from_bytes` methods. Note that you usually need the context to deserialize,
+  and so `from_bytes` is generally a class method that takes a `SEALContext`
+  object as the first argument.
 
-  # 2. Rebuild the SEAL lib like above
-  cmake --build build
-
-  # 3. Run the setup.py
-  python setup.py build_ext -i
-  ```
-
-  And serialize the data object like this:
+  Here's a short example:
 
   ```python
-  import pickle
+  parms = EncryptionParameters(scheme_type.ckks)
+  context = SEALContext(parms)
 
-  cipher.set_parms(parms)  # necessary
-  cipher_dump = pickle.dumps(cipher)
-  cipher_load = pickle.loads(cipher_dump)
+  # ... create ciphext object 'ct'
+
+  data = ct.to_bytes()
+
+  # ... send the data or do whatever you want with it
+
+  recreated_ct = Ciphertext.from_bytes(context, data)
   ```
 
 * #### Other
 
-  There are a lot of changes in the latest SEAL lib, we try to make the API in python can be used easier, it may remain some problems we unknown, if any problems(bugs), [Issue](https://github.com/Huelse/SEAL-Python/issues) please.
-
-  Email: [topmaxz@protonmail.com](mailto:topmaxz@protonmail.com?subject=Github-SEAL-Python-Issues)
-
-
+  This is a fork of [SEAL-Python](https://github.com/Huelse/SEAL-Python) by me,
+  Dan Roche. Feel free to submit any issues here, or more likely, submit
+  to the upstream library and I will try to keep this for up to date.
 
 ## FAQ
 
@@ -150,7 +151,8 @@ This is a python binding for the Microsoft SEAL library.
 
 
 
-## Contributing
+## Original SEAL-Python Contributors
+
 * Professor: [Dr. Chen](https://zhigang-chen.github.io/)
 
 * [Contributors](https://github.com/Huelse/SEAL-Python/graphs/contributors)

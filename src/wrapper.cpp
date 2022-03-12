@@ -49,6 +49,18 @@ PYBIND11_MODULE(seal, m)
             parms.load(in);
             in.close();
         })
+        .def("to_bytes", [](const EncryptionParameters &parms){
+            std::stringstream out;
+            parms.save(out);
+            const std::string str = out.str();
+            return py::bytes(str);
+        })
+        .def_static("from_bytes", [](const py::bytes &data){
+            EncryptionParameters parms;
+            std::stringstream in(data);
+            parms.load(in);
+            return parms;
+        })
         .def(py::pickle(
             [](const EncryptionParameters &parms){
                 std::stringstream out_stream(std::ios::binary | std::ios::out);
@@ -171,6 +183,18 @@ PYBIND11_MODULE(seal, m)
         .def("scale", [](Plaintext &plain, double scale){
             plain.scale() = scale;
         })
+        .def("to_bytes", [](const Plaintext &plain){
+            std::stringstream out;
+            plain.save(out);
+            const std::string str = out.str();
+            return py::bytes(str);
+        })
+        .def_static("from_bytes", [](const SEALContext &context, const py::bytes &data){
+            Plaintext plain;
+            std::stringstream in(data);
+            plain.load(context, in);
+            return plain;
+        })
         .def("save", [](const Plaintext &plain, const std::string &path){
             std::ofstream out(path, std::ofstream::binary);
             plain.save(out);
@@ -203,6 +227,18 @@ PYBIND11_MODULE(seal, m)
         .def("scale", [](Ciphertext &cipher, double scale){
             cipher.scale() = scale;
         })
+        .def("to_bytes", [](const Ciphertext &cipher){
+            std::stringstream out;
+            cipher.save(out);
+            const std::string str = out.str();
+            return py::bytes(str);
+        })
+        .def_static("from_bytes", [](const SEALContext &context, const py::bytes &data){
+            Ciphertext ct(context);
+            std::stringstream in(data);
+            ct.load(context, in);
+            return ct;
+        })
         .def("save", [](const Ciphertext &cipher, const std::string &path){
             std::ofstream out(path, std::ofstream::binary);
             cipher.save(out);
@@ -222,6 +258,18 @@ PYBIND11_MODULE(seal, m)
         .def(py::init<>())
         .def(py::init<const SecretKey &>())
         .def("parms_id", py::overload_cast<>(&SecretKey::parms_id, py::const_), py::return_value_policy::reference)
+        .def("to_bytes", [](const SecretKey &sk){
+            std::stringstream out;
+            sk.save(out);
+            const std::string str = out.str();
+            return py::bytes(str);
+        })
+        .def_static("from_bytes", [](const SEALContext &context, const py::bytes &data){
+            SecretKey sk;
+            std::stringstream in(data);
+            sk.load(context, in);
+            return sk;
+        })
         .def("save", [](const SecretKey &sk, const std::string &path){
             std::ofstream out(path, std::ofstream::binary);
             sk.save(out);
@@ -238,6 +286,18 @@ PYBIND11_MODULE(seal, m)
         .def(py::init<>())
         .def(py::init<const PublicKey &>())
         .def("parms_id", py::overload_cast<>(&PublicKey::parms_id, py::const_), py::return_value_policy::reference)
+        .def("to_bytes", [](const PublicKey &pk){
+            std::stringstream out;
+            pk.save(out);
+            const std::string str = out.str();
+            return py::bytes(str);
+        })
+        .def_static("from_bytes", [](const SEALContext &context, const py::bytes &data){
+            PublicKey pk;
+            std::stringstream in(data);
+            pk.load(context, in);
+            return pk;
+        })
         .def("save", [](const PublicKey &pk, const std::string &path){
             std::ofstream out(path, std::ofstream::binary);
             pk.save(out);
@@ -255,6 +315,18 @@ PYBIND11_MODULE(seal, m)
         .def(py::init<const KSwitchKeys &>())
         .def("size", &KSwitchKeys::size)
         .def("parms_id", py::overload_cast<>(&KSwitchKeys::parms_id, py::const_), py::return_value_policy::reference)
+        .def("to_bytes", [](const KSwitchKeys &ksk){
+            std::stringstream out;
+            ksk.save(out);
+            const std::string str = out.str();
+            return py::bytes(str);
+        })
+        .def_static("from_bytes", [](const SEALContext &context, const py::bytes &data){
+            KSwitchKeys ksk;
+            std::stringstream in(data);
+            ksk.load(context, in);
+            return ksk;
+        })
         .def("save", [](const KSwitchKeys &ksk, const std::string &path){
             std::ofstream out(path, std::ofstream::binary);
             ksk.save(out);
@@ -274,6 +346,18 @@ PYBIND11_MODULE(seal, m)
         .def("parms_id", py::overload_cast<>(&RelinKeys::KSwitchKeys::parms_id, py::const_), py::return_value_policy::reference)
         .def_static("get_index", &RelinKeys::get_index)
         .def("has_key", &RelinKeys::has_key)
+        .def("to_bytes", [](const RelinKeys &rk){
+            std::stringstream out;
+            rk.save(out);
+            const std::string str = out.str();
+            return py::bytes(str);
+        })
+        .def_static("from_bytes", [](const SEALContext &context, const py::bytes &data){
+            RelinKeys rk;
+            std::stringstream in(data);
+            rk.load(context, in);
+            return rk;
+        })
         .def("save", [](const RelinKeys &rk, const std::string &path){
             std::ofstream out(path, std::ofstream::binary);
             rk.save(out);
@@ -293,6 +377,18 @@ PYBIND11_MODULE(seal, m)
         .def("parms_id", py::overload_cast<>(&GaloisKeys::KSwitchKeys::parms_id, py::const_), py::return_value_policy::reference)
         .def_static("get_index", &GaloisKeys::get_index)
         .def("has_key", &GaloisKeys::has_key)
+        .def("to_bytes", [](const GaloisKeys &gk){
+            std::stringstream out;
+            gk.save(out);
+            const std::string str = out.str();
+            return py::bytes(str);
+        })
+        .def_static("from_bytes", [](const SEALContext &context, const py::bytes &data){
+            GaloisKeys gk;
+            std::stringstream in(data);
+            gk.load(context, in);
+            return gk;
+        })
         .def("save", [](const GaloisKeys &gk, const std::string &path){
             std::ofstream out(path, std::ofstream::binary);
             gk.save(out);
